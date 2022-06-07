@@ -1,6 +1,5 @@
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import TomSelect from 'tom-select'
 import 'tom-select/dist/css/tom-select.bootstrap4.css'
 import map from '../assets/img/earth-texture.jpg'
@@ -35,7 +34,7 @@ export default class Sketch {
     )
 
     this.camera.position.set(0, 0, 3)
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    // this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.time = 0
 
     this.isPlaying = true
@@ -94,43 +93,52 @@ export default class Sketch {
 
     console.log({ x, y, z })
 
-    this.controls.autoRotate = true
-    this.controls.enableDamping = true
+    // this.controls.enableDamping = true
 
     const max = Math.PI / 2 /* maximum rotation in each quadrant */
 
     let targetAngle = max * Math.abs(z)
 
+    console.log({quadrantSize: max})
+
     if (x > 0 && z > 0) {
       // Case of first quadrant
-      targetAngle = max - targetAngle
+      targetAngle = max * x
+      console.log('is in first quadrant')
     } else if (x > 0 && z < 0) {
       targetAngle = targetAngle + max
+      console.log('is in second quadrant')
     } else if (x < 0 && z < 0) {
-      targetAngle = targetAngle + max * 2
+      const newZ = 1 + z
+      console.log({newZ})
+      targetAngle = (max * Math.abs(newZ)) + max * 2
+      console.log('is in third quadrant')
     } else {
       targetAngle = targetAngle + max * 3
+      console.log('is in fourth quadrant')
     }
 
-    const currentAngle = this.controls.getAzimuthalAngle()
+    console.log({targetAngle})
+
+    // const currentAngle = this.controls.getAzimuthalAngle()
     const maxAngle = Math.PI * 2
 
-    const rest = maxAngle - currentAngle - (targetAngle - currentAngle)
-
-    const speed = 20
-
-    this.controls.autoRotateSpeed = -4
-
-    // if (rest < maxAngle / 2) {
-    //   this.controls.autoRotateSpeed = speed
-    // } else {
-    //   this.controls.autoRotateSpeed = speed * -1
-    // }
-
-    this.controls.minAzimuthAngle = currentAngle
-    this.controls.maxAzimuthAngle = targetAngle
-
     this.pin.position.set(x, y, z)
+
+    targetAngle = this.planet.getWorldDirection((e) => {
+      console.log({e})
+    }).angleTo(new THREE.Vector3(x, y,z ))
+
+
+    console.log({targetAngle})
+
+
+    this.planet.rotation.y = (targetAngle) * -1
+
+
+    
+    // this.camera.lookAt(this.pin.position)
+
 
     // this.camera.position
   }
@@ -156,18 +164,51 @@ export default class Sketch {
 
     const radius = 1
 
+    const pinSize = 0.04
+
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
     this.planet = new THREE.Mesh(this.geometry, this.material)
     this.scene.add(this.planet)
 
-    this.pin = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(0.01, 20, 20),
+    const pin1 = new THREE.Mesh(
+      new THREE.SphereBufferGeometry(pinSize, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0xff0000 })
     )
 
+    pin1.position.set(0, 0, 1)
 
-    this.pin.position.set(0, 0, 0)
+    const pin2 = new THREE.Mesh(
+      new THREE.SphereBufferGeometry(pinSize, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
 
+    pin2.position.set(1, 0, 0)
+
+
+    const pin3 = new THREE.Mesh(
+      new THREE.SphereBufferGeometry(pinSize, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
+
+    pin3.position.set(0, 0, -1)
+
+
+    const pin4 = new THREE.Mesh(
+      new THREE.SphereBufferGeometry(pinSize, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
+
+    pin4.position.set(-1, 0, 0)
+
+    this.pin = new THREE.Mesh(
+      new THREE.SphereBufferGeometry(pinSize / 3, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    )
+
+    this.scene.add(pin1)
+    this.scene.add(pin2)
+    this.scene.add(pin3)
+    this.scene.add(pin4)
     this.scene.add(this.pin)
   }
 
@@ -186,7 +227,7 @@ export default class Sketch {
     if (!this.isPlaying) return
     this.time += 0.5
     // console.log({country: this.country})
-    this.controls.update()
+    // this.controls.update()
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
   }
