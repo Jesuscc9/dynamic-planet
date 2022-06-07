@@ -9,7 +9,7 @@ import '../style.css'
 
 const angleToRadians = (n) => (n * Math.PI) / 180
 
-const countries = { }
+const countries = {}
 
 export default class Sketch {
   constructor(options) {
@@ -91,56 +91,35 @@ export default class Sketch {
 
     const { x, y, z } = convertCordsToCartesian([lat, lng])
 
-    console.log({ x, y, z })
-
-    // this.controls.enableDamping = true
-
-    const max = Math.PI / 2 /* maximum rotation in each quadrant */
-
-    let targetAngle = max * Math.abs(z)
-
-    console.log({quadrantSize: max})
-
-    if (x > 0 && z > 0) {
-      // Case of first quadrant
-      targetAngle = max * x
-      console.log('is in first quadrant')
-    } else if (x > 0 && z < 0) {
-      targetAngle = targetAngle + max
-      console.log('is in second quadrant')
-    } else if (x < 0 && z < 0) {
-      const newZ = 1 + z
-      console.log({newZ})
-      targetAngle = (max * Math.abs(newZ)) + max * 2
-      console.log('is in third quadrant')
-    } else {
-      targetAngle = targetAngle + max * 3
-      console.log('is in fourth quadrant')
+    function getCenter(mesh) {
+      const geometry = mesh.geometry
+      geometry.computeBoundingBox()
+      const center = new THREE.Vector3()
+      geometry.boundingBox.getCenter(center)
+      mesh.localToWorld(center)
+      return center
     }
 
-    console.log({targetAngle})
+    console.log({ x, y, z })
 
-    // const currentAngle = this.controls.getAzimuthalAngle()
-    const maxAngle = Math.PI * 2
+    // Step 1
+    const center = getCenter(this.planet)
+    console.log({ center: { x: center.x, y: center.y, z: center.z } })
 
-    this.pin.position.set(x, y, z)
-
-    targetAngle = this.planet.getWorldDirection((e) => {
-      console.log({e})
-    }).angleTo(new THREE.Vector3(x, y,z ))
-
-
-    console.log({targetAngle})
-
-
-    this.planet.rotation.y = (targetAngle) * -1
-
-
+    // Step 2
+    /* my point position is on the variables of {x, y ,z} */
     
-    // this.camera.lookAt(this.pin.position)
+    // Step 3
+    const sub = center.sub(new THREE.Vector3(x, y, z))
+    console.log({ sub: { x: sub.x, y: sub.y, z: sub.z } })
 
+    // Step 4
+    this.camera.position.set(this.planet.position)
+    this.camera.position.add(sub)
 
-    // this.camera.position
+    // Step 5
+
+    this.camera.lookAt(x, y, z)
   }
 
   addObjects() {
@@ -184,14 +163,12 @@ export default class Sketch {
 
     pin2.position.set(1, 0, 0)
 
-
     const pin3 = new THREE.Mesh(
       new THREE.SphereBufferGeometry(pinSize, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0xff0000 })
     )
 
     pin3.position.set(0, 0, -1)
-
 
     const pin4 = new THREE.Mesh(
       new THREE.SphereBufferGeometry(pinSize, 20, 20),
@@ -240,13 +217,12 @@ const sketch = new Sketch({
 const select = new TomSelect(document.getElementById('countries'))
 
 const fetchData = () => {
-
   const options = []
 
   fetch('https://restcountries.com/v3.1/all')
     .then((e) => e.json())
     .then((data) => {
-      data.forEach(el => {
+      data.forEach((el) => {
         options.push({
           text: el.name.common,
           value: el.cca3
@@ -273,8 +249,4 @@ form.addEventListener('submit', (e) => {
       sketch.focusCountry(countries[value])
     }
   }
-
-  console.log({ data })
-
-  // sketch.focusCountry()
 })
