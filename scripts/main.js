@@ -33,7 +33,7 @@ export default class Sketch {
       1000
     )
 
-    this.camera.position.set(0, 0, 3)
+    this.camera.position.set(0, 0, 0)
     // this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.time = 0
 
@@ -102,24 +102,34 @@ export default class Sketch {
 
     console.log({ x, y, z })
 
+    this.pin.position.set(x, y, z)
+    
     // Step 1
     const center = getCenter(this.planet)
     console.log({ center: { x: center.x, y: center.y, z: center.z } })
-
+    
     // Step 2
-    /* my point position is on the variables of {x, y ,z} */
+    const pointPosition = this.planet.localToWorld(this.pin.position)
+    console.log({pointPosition})
+    // console.log({ pointPosition })
+    // console.log({ pointPosition: { x: pointPosition.x, y: pointPosition.y, z: pointPosition.z } })
     
     // Step 3
-    const sub = center.sub(new THREE.Vector3(x, y, z))
-    console.log({ sub: { x: sub.x, y: sub.y, z: sub.z } })
+    // const sub = pointPosition.sub(center)
+    // console.log({ sub: { x: sub.x, y: sub.y, z: sub.z } })
 
     // Step 4
-    this.camera.position.set(this.planet.position)
-    this.camera.position.add(sub)
+    this.camera.position.set(pointPosition.x, pointPosition.y, pointPosition.z)
+    // this.camera.position.add(sub)
+
+    console.log({position: this.camera.position})
 
     // Step 5
 
-    this.camera.lookAt(x, y, z)
+    this.camera.position.z += 0.3
+    this.camera.position.x += 0.2
+    // this.camera.rotation.set(0, 0, 0)
+    this.camera.lookAt(pointPosition.x, pointPosition.y, pointPosition.z)
   }
 
   addObjects() {
@@ -203,8 +213,9 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return
     this.time += 0.5
-    // console.log({country: this.country})
-    // this.controls.update()
+    // this.camera.position.x += 0.001
+    // this.camera.position.y += 0.001
+    // this.camera.position.z += 0.001
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
   }
