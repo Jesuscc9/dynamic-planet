@@ -6,3 +6,7 @@
   margin: 0px;
   font-family: 'Roboto', sans-serif;
 }
+
+body {
+  overflow: hidden;
+}

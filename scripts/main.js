@@ -1,5 +1,6 @@
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import TomSelect from 'tom-select'
 import 'tom-select/dist/css/tom-select.bootstrap4.css'
 import map from '../assets/img/earth-texture.jpg'
@@ -7,10 +8,7 @@ import fragment from '../assets/shader/fragment.glsl?raw'
 import vertex from '../assets/shader/vertex.glsl?raw'
 import '../style.css'
 
-const angleToRadians = (n) => (n * Math.PI) / 180
-
 const countries = {}
-
 export default class Sketch {
   constructor(options) {
     this.scene = new THREE.Scene()
@@ -33,8 +31,10 @@ export default class Sketch {
       1000
     )
 
-    this.camera.position.set(0, 0, 0)
-    // this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.camera.position.set(0, 0, 3)
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.enablePan = false
     this.time = 0
 
     this.isPlaying = true
@@ -77,6 +77,16 @@ export default class Sketch {
 
   focusCountry(country) {
     const [lat, lng] = country
+    this.controls.reset()
+
+    // Rotate earth to focus that country
+    var c = this.planet.rotation.y
+    var d = (-lng * (Math.PI / 180)) % (2 * Math.PI)
+    var e = (Math.PI / 2) * -1
+    this.planet.rotation.y = c % (2 * Math.PI)
+    this.planet.rotation.x = (lat * (Math.PI / 180)) % Math.PI
+    this.planet.rotation.y = d + e
+
 
     function convertCordsToCartesian([lat, lng]) {
       const phi = lat * (Math.PI / 180)
@@ -91,45 +101,7 @@ export default class Sketch {
 
     const { x, y, z } = convertCordsToCartesian([lat, lng])
 
-    function getCenter(mesh) {
-      const geometry = mesh.geometry
-      geometry.computeBoundingBox()
-      const center = new THREE.Vector3()
-      geometry.boundingBox.getCenter(center)
-      mesh.localToWorld(center)
-      return center
-    }
-
-    console.log({ x, y, z })
-
     this.pin.position.set(x, y, z)
-    
-    // Step 1
-    const center = getCenter(this.planet)
-    console.log({ center: { x: center.x, y: center.y, z: center.z } })
-    
-    // Step 2
-    const pointPosition = this.planet.localToWorld(this.pin.position)
-    console.log({pointPosition})
-    // console.log({ pointPosition })
-    // console.log({ pointPosition: { x: pointPosition.x, y: pointPosition.y, z: pointPosition.z } })
-    
-    // Step 3
-    // const sub = pointPosition.sub(center)
-    // console.log({ sub: { x: sub.x, y: sub.y, z: sub.z } })
-
-    // Step 4
-    this.camera.position.set(pointPosition.x, pointPosition.y, pointPosition.z)
-    // this.camera.position.add(sub)
-
-    console.log({position: this.camera.position})
-
-    // Step 5
-
-    this.camera.position.z += 0.3
-    this.camera.position.x += 0.2
-    // this.camera.rotation.set(0, 0, 0)
-    this.camera.lookAt(pointPosition.x, pointPosition.y, pointPosition.z)
   }
 
   addObjects() {
@@ -153,50 +125,18 @@ export default class Sketch {
 
     const radius = 1
 
-    const pinSize = 0.04
+    const pinSize = 0.01
 
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
     this.planet = new THREE.Mesh(this.geometry, this.material)
     this.scene.add(this.planet)
 
-    const pin1 = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    )
-
-    pin1.position.set(0, 0, 1)
-
-    const pin2 = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    )
-
-    pin2.position.set(1, 0, 0)
-
-    const pin3 = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    )
-
-    pin3.position.set(0, 0, -1)
-
-    const pin4 = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    )
-
-    pin4.position.set(-1, 0, 0)
-
     this.pin = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize / 3, 20, 20),
+      new THREE.SphereBufferGeometry(pinSize, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0xff0000 })
     )
 
-    this.scene.add(pin1)
-    this.scene.add(pin2)
-    this.scene.add(pin3)
-    this.scene.add(pin4)
-    this.scene.add(this.pin)
+    this.planet.attach(this.pin)
   }
 
   stop() {
@@ -213,9 +153,7 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return
     this.time += 0.5
-    // this.camera.position.x += 0.001
-    // this.camera.position.y += 0.001
-    // this.camera.position.z += 0.001
+    this.controls.update()
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
   }
