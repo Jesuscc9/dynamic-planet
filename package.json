@@ -8,14 +8,16 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "eslint": "^8.17.0",
-    "vite": "^2.9.9"
+    "@types/three": "0.141.0",
+    "eslint": "8.17.0",
+    "vite": "2.9.9"
   },
   "dependencies": {
-    "dat.gui": "^0.7.9",
-    "gsap": "^3.10.4",
-    "three": "^0.141.0",
-    "tom-select": "^2.0.3"
+    "@tweenjs/tween.js": "18.6.4",
+    "dat.gui": "0.7.9",
+    "gsap": "3.10.4",
+    "three": "0.141.0",
+    "tom-select": "2.0.3"
   },
   "eslintConfig": {
     "extends": [

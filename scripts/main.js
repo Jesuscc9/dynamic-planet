@@ -1,3 +1,5 @@
+// import { TWEEN } from 'three/examples/jsm/libs/tween.module.min'
+import TWEEN from '@tweenjs/tween.js'
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -77,16 +79,61 @@ export default class Sketch {
 
   focusCountry(country) {
     const [lat, lng] = country
-    this.controls.reset()
+    // this.controls.reset()
 
     // Rotate earth to focus that country
-    var c = this.planet.rotation.y
     var d = (-lng * (Math.PI / 180)) % (2 * Math.PI)
     var e = (Math.PI / 2) * -1
-    this.planet.rotation.y = c % (2 * Math.PI)
-    this.planet.rotation.x = (lat * (Math.PI / 180)) % Math.PI
-    this.planet.rotation.y = d + e
 
+    const cameraZoom = {
+      value: 3
+    }
+
+    const cameraEndZoom = {
+      value: 2
+    }
+
+    // Todo: fix this callback hell 😭
+
+    new TWEEN.Tween(this.planet.rotation)
+      .to(
+        {
+          x: (lat * (Math.PI / 180)) % Math.PI,
+          y: d + e
+        },
+        1000
+      )
+      .easing(TWEEN.Easing.Cubic.InOut).onStart(() => {
+        cameraZoom.value = this.camera.position.z
+        if(this.camera.position.z === cameraEndZoom.value) {
+          new TWEEN.Tween(cameraZoom)
+            .to({ value: 3 }, 1000)
+            .onUpdate(() => {
+              this.camera.position.z = cameraZoom.value
+            })
+            .easing(TWEEN.Easing.Cubic.InOut).onComplete(() => {
+              cameraZoom.value = this.camera.position.z
+              new TWEEN.Tween(cameraZoom)
+                .to({ value: 2 }, 1000)
+                .onUpdate(() => {
+                  this.camera.position.z = cameraZoom.value
+                })
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .start()
+            })
+            .start()
+        } else {
+          new TWEEN.Tween(cameraZoom)
+            .to(cameraEndZoom, 1000)
+            .onUpdate(() => {
+              this.camera.position.z = cameraZoom.value
+            })
+            .easing(TWEEN.Easing.Cubic.InOut)
+            .start()
+        }
+
+      })
+      .start()
 
     function convertCordsToCartesian([lat, lng]) {
       const phi = lat * (Math.PI / 180)
@@ -154,6 +201,7 @@ export default class Sketch {
     if (!this.isPlaying) return
     this.time += 0.5
     this.controls.update()
+    TWEEN.update()
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera)
   }
@@ -193,7 +241,6 @@ form.addEventListener('submit', (e) => {
   const data = new FormData(form)
 
   for (const [name, value] of data) {
-    console.log({ name, value })
     if (name === 'country') {
       sketch.focusCountry(countries[value])
     }
