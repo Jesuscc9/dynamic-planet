@@ -2,9 +2,10 @@ import TWEEN from '@tweenjs/tween.js'
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import map from '../assets/img/earth-texture.jpg'
 import fragment from '../assets/shader/fragment.glsl?raw'
 import vertex from '../assets/shader/vertex.glsl?raw'
+import { convertCordsToCartesian } from './helpers'
+import { visibilityForCoordinate } from './main'
 
 export default class Sketch {
   constructor(options) {
@@ -33,10 +34,9 @@ export default class Sketch {
     this.controls.enableDamping = true
     this.controls.enablePan = false
     this.controls.autoRotate = true
-    this.controls.autoRotateSpeed = -0.5
-    
-    this.time = 0
+    this.controls.autoRotateSpeed = 2
 
+    this.time = 0
 
     this.isPlaying = true
 
@@ -142,17 +142,6 @@ export default class Sketch {
       })
       .start()
 
-    function convertCordsToCartesian([lat, lng]) {
-      const phi = lat * (Math.PI / 180)
-      const theta = (lng + 180) * (Math.PI / 180)
-
-      let x = -(Math.cos(phi) * Math.cos(theta))
-      let y = Math.sin(phi)
-      let z = Math.cos(phi) * Math.sin(theta)
-
-      return { x, y, z }
-    }
-
     const { x, y, z } = convertCordsToCartesian([lat, lng])
 
     new TWEEN.Tween(this.pin.position)
@@ -169,7 +158,6 @@ export default class Sketch {
   }
 
   addObjects() {
-    // let that = this
     this.material = new THREE.ShaderMaterial({
       extensions: {
         derivatives: '#extension GL_OES_standard_derivatives : enable'
@@ -183,13 +171,15 @@ export default class Sketch {
       fragmentShader: fragment
     })
 
-    this.material = new THREE.MeshBasicMaterial({
-      map: new THREE.TextureLoader().load(map)
-    })
+    // this.material = new THREE.MeshBasicMaterial({
+    //   map: new THREE.TextureLoader().load(map)
+    // })
+
+    this.material = new THREE.MeshBasicMaterial({color: 'rgb(0, 0, 0)'})
 
     const radius = 1
 
-    const pinSize = 0.01
+    const pinSize = 0.003
 
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
     this.planet = new THREE.Mesh(this.geometry, this.material)
@@ -199,6 +189,33 @@ export default class Sketch {
       new THREE.SphereBufferGeometry(pinSize, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0xff0000 })
     )
+
+    const rows = 180 * 1
+    const GLOBE_RADIUS = 20
+    const dotDensity = 2
+    const DEG2RAD = Math.PI
+
+    for (let lat = -90; lat <= 90; lat += 180 / rows) {
+      const radius = Math.cos(Math.abs(lat) * DEG2RAD) * GLOBE_RADIUS
+      const circumference = radius * Math.PI * 2
+      const dotsForLat = circumference * dotDensity
+      for (let x = 0; x < dotsForLat; x++) {
+        const long = -180 + (x * 360) / dotsForLat
+
+        if(!visibilityForCoordinate(lat, long)) continue
+
+        const point = new THREE.Mesh(
+          new THREE.SphereBufferGeometry(pinSize, 20, 20),
+          new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' })
+        )
+
+        const pointPosition = convertCordsToCartesian([lat, long])
+
+        point.position.set(pointPosition.x, pointPosition.y, pointPosition.z)
+
+        this.planet.attach(point)
+      }
+    }
 
     this.planet.attach(this.pin)
   }
