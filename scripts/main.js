@@ -6,18 +6,12 @@ const countries = {}
 
 var sketch = null
 
-const select = new TomSelect(document.getElementById('countries'), {
-  onFocus: () => {
-    if (Object.keys(countries).length === 0) {
-      fetchData()
-    }
-  }
-})
+const select = new TomSelect(document.getElementById('countries'))
 
 const fetchData = () => {
   const options = []
 
-  fetch('https://restcountries.com/v3.1/all')
+  fetch('../data/countries.json')
     .then((e) => e.json())
     .then((data) => {
       data.forEach((el) => {
@@ -31,6 +25,8 @@ const fetchData = () => {
       select.addOptions(options)
     })
 }
+
+fetchData()
 
 const form = document.getElementById('country-form')
 
