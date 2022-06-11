@@ -18,7 +18,7 @@ export default class Sketch {
     this.renderer = new THREE.WebGLRenderer()
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this.renderer.setSize(this.width, this.height)
-    this.renderer.setClearColor(0xeeeeee, 1)
+    this.renderer.setClearColor('rgb(0, 0, 0)', 1)
 
     this.container.appendChild(this.renderer.domElement)
 
@@ -30,12 +30,6 @@ export default class Sketch {
     )
 
     this.camera.position.set(0, 0, 3)
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.enableDamping = true
-    this.controls.enablePan = false
-    this.controls.enableZoom = false
-    this.controls.autoRotate = true
-    this.controls.autoRotateSpeed = 2
 
     this.time = 0
 
@@ -172,11 +166,22 @@ export default class Sketch {
       fragmentShader: fragment
     })
 
-    // this.material = new THREE.MeshBasicMaterial({
-    //   map: new THREE.TextureLoader().load(map)
-    // })
 
-    this.material = new THREE.MeshBasicMaterial({color: 'rgb(0, 0, 0)'})
+    this.material = new THREE.MeshPhongMaterial({color: '#4849c5'})
+
+    var light = new THREE.DirectionalLight(0xffffff, 1.5)
+    light.position.set(-5, 3, 2)
+
+    this.lightHolder = new THREE.Group()
+    this.lightHolder.add(light)
+    this.scene.add(this.lightHolder)
+
+
+    this.scene.add(new THREE.AmbientLight(0xbbbbbb, 0.3))
+
+
+    
+    this.scene.background = new THREE.Color(0x040d21)
 
     const radius = 1
 
@@ -185,6 +190,11 @@ export default class Sketch {
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
     this.planet = new THREE.Mesh(this.geometry, this.material)
     this.scene.add(this.planet)
+
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls.enableDamping = true
+    this.controls.enablePan = false
+    this.controls.enableZoom = false
 
     this.pin = new THREE.Mesh(
       new THREE.SphereBufferGeometry(pinSize, 20, 20),
@@ -235,9 +245,12 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return
     this.time += 0.5
+    this.planet.rotation.y += 0.001
+
     this.controls.update()
     TWEEN.update()
     requestAnimationFrame(this.render.bind(this))
+    this.lightHolder.quaternion.copy(this.camera.quaternion)
     this.renderer.render(this.scene, this.camera)
   }
 }
