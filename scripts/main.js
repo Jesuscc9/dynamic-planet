@@ -6,7 +6,13 @@ const countries = {}
 
 var sketch = null
 
-const select = new TomSelect(document.getElementById('countries'))
+const select = new TomSelect(document.getElementById('countries'), {
+  onFocus: () => {
+    if (Object.keys(countries).length === 0) {
+      fetchData()
+    }
+  }
+})
 
 const fetchData = () => {
   const options = []
@@ -25,8 +31,6 @@ const fetchData = () => {
       select.addOptions(options)
     })
 }
-
-fetchData()
 
 const form = document.getElementById('country-form')
 
@@ -51,7 +55,9 @@ function latlngToGlobalXY(lat, lng, p0, p1) {
   return { x, y }
 }
 
-let width = 0, height = 0, data = []
+let width = 0,
+  height = 0,
+  data = []
 
 export const getImageData = () => {
   const img = new Image()
@@ -83,13 +89,11 @@ export const getImageData = () => {
 
 getImageData()
 
-
 export const visibilityForCoordinate = (lat, lang) => {
   const getColorIndicesForCoord = (x, y) => {
     const red = y * (width * 4) + x * 4
     return [red, red + 1, red + 2, red + 3]
   }
-
 
   const p0 = {
     scrX: 0, // Minimum X position on screen
@@ -113,9 +117,9 @@ export const visibilityForCoordinate = (lat, lang) => {
 
   let pos = latlngToGlobalXY(lat, lang, p0, p1)
   //Calculate the percentage of Global X position in relation to total global width
-  pos.perX = ((pos.x - p0.pos.x) / (p1.pos.x - p0.pos.x))
+  pos.perX = (pos.x - p0.pos.x) / (p1.pos.x - p0.pos.x)
   //Calculate the percentage of Global Y position in relation to total global height
-  pos.perY = ((pos.y - p0.pos.y) / (p1.pos.y - p0.pos.y))
+  pos.perY = (pos.y - p0.pos.y) / (p1.pos.y - p0.pos.y)
 
   //Returns the screen position based on reference points
 
@@ -129,7 +133,7 @@ export const visibilityForCoordinate = (lat, lang) => {
   const blue = data[b]
   const alpha = data[a]
 
-  if(red < 255 || green < 255 || blue < 255) return true
+  if (red === 0 || green === 0 || blue === 0) return true
 
   return false
 }

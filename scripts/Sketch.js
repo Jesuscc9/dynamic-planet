@@ -16,7 +16,7 @@ export default class Sketch {
     this.height = this.container.offsetHeight
 
     this.renderer = new THREE.WebGLRenderer()
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1))
     this.renderer.setSize(this.width, this.height)
     this.renderer.setClearColor('rgb(0, 0, 0)', 1)
 
@@ -202,9 +202,9 @@ export default class Sketch {
     )
 
     const rows = 180 * 1
-    const GLOBE_RADIUS = 20
+    const GLOBE_RADIUS = 16
     const dotDensity = 2
-    const DEG2RAD = Math.PI
+    const DEG2RAD = Math.PI * 4
 
     for (let lat = -90; lat <= 90; lat += 180 / rows) {
       const radius = Math.cos(Math.abs(lat) * DEG2RAD) * GLOBE_RADIUS
@@ -217,7 +217,7 @@ export default class Sketch {
 
         const point = new THREE.Mesh(
           new THREE.SphereBufferGeometry(pinSize, 20, 20),
-          new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' })
+          new THREE.MeshBasicMaterial({ color: 'rgb(177, 177, 177)' })
         )
 
         const pointPosition = convertCordsToCartesian([lat, long])
