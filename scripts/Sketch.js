@@ -2,10 +2,27 @@ import TWEEN from '@tweenjs/tween.js'
 import * as dat from 'dat.gui'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import fragment from '../assets/shader/fragment.glsl?raw'
 import vertex from '../assets/shader/vertex.glsl?raw'
+
+
+
 import { convertCordsToCartesian } from './helpers'
 import { visibilityForCoordinate } from './main'
+
+const loader = new GLTFLoader()
+
+
+const importModel = async () => {
+  return new Promise((resolve, reject) => {
+    loader.load('../assets/models/earth.gltf', function (gltf) {
+      resolve(gltf)
+    }, undefined, function ( error ) {
+      reject(error)
+    } )
+  })
+}
 
 export default class Sketch {
   constructor(options) {
@@ -46,7 +63,6 @@ export default class Sketch {
 
     this.addObjects()
     this.resize()
-    this.render()
     this.setupResize()
   }
 
@@ -152,7 +168,25 @@ export default class Sketch {
       .start()
   }
 
-  addObjects() {
+  async addObjects() {
+
+    
+    
+    const model = await importModel()
+    this.planet = model.scene
+    this.scene.add(this.planet)
+    // this.planet.scale.set(0.35, 0.35, 0.35)
+    
+    var mroot = this.planet
+    var bbox = new THREE.Box3().setFromObject(mroot)
+    var size = bbox.getSize(new THREE.Vector3())
+
+    //Rescale the object to normalized space
+    var maxAxis = Math.max(size.x, size.y, size.z)
+    mroot.scale.multiplyScalar(2 / maxAxis)
+
+
+
     this.material = new THREE.ShaderMaterial({
       extensions: {
         derivatives: '#extension GL_OES_standard_derivatives : enable'
@@ -169,7 +203,7 @@ export default class Sketch {
 
     this.material = new THREE.MeshPhongMaterial({color: '#4849c5'})
 
-    var light = new THREE.DirectionalLight(0xffffff, 1.5)
+    var light = new THREE.DirectionalLight(0xffffff, 10)
     light.position.set(-5, 3, 2)
 
     this.lightHolder = new THREE.Group()
@@ -177,7 +211,7 @@ export default class Sketch {
     this.scene.add(this.lightHolder)
 
 
-    this.scene.add(new THREE.AmbientLight(0xbbbbbb, 0.3))
+    this.scene.add(new THREE.AmbientLight('#fff', 10))
 
 
     
@@ -188,8 +222,8 @@ export default class Sketch {
     const pinSize = 0.003
 
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
-    this.planet = new THREE.Mesh(this.geometry, this.material)
-    this.scene.add(this.planet)
+    // this.planet = new THREE.Mesh(this.geometry, this.material)
+    // this.scene.add(this.planet)
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enableDamping = true
@@ -229,6 +263,8 @@ export default class Sketch {
     }
 
     this.planet.attach(this.pin)
+
+    this.render()
   }
 
   stop() {
