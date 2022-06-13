@@ -38,7 +38,7 @@ export default class Sketch {
 
     this.isPlaying = true
 
-    this.addObjects()
+    // this.addObjects()
     this.resize()
     this.setupResize()
 
