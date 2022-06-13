@@ -1,24 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="preload" as="font" type="font/otf" href="/assets/Neo Sans Std Bold.86a2ba69.otf" crossorigin>
+    <link rel="preload" as="font" type="font/otf" href="/assets/Neo Sans Std Light.e356fa86.otf" crossorigin>
+    <link rel="preload" as="font" type="font/otf" href="/assets/Neo Sans Std Regular.10131c5f.otf" crossorigin>
+
     <title>GeoQuiz</title>
+    <script
+      src="https://kit.fontawesome.com/742df9d28f.js"
+      crossorigin="anonymous"
+    ></script>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.a6cb530a.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="module" crossorigin src="/assets/index.001413e1.js"></script>
-    <link rel="stylesheet" href="/assets/index.b57c1ab1.css">
+    <script type="module" crossorigin src="/assets/index.e6cb7804.js"></script>
+    <link rel="stylesheet" href="/assets/index.ef9a20f6.css">
   </head>
   <body>
-    <form action="" id="country-form" style="padding: 2rem;">
-      <select name="country" id="countries" onclick="fetchData">
-      </select>
+    <header class="Header">
+      <object
+        class="Header__desktop-logo"
+        data="assets/img/logo.svg"
+        width="160"
+      ></object>
+      <object
+        class="Header__mobile-logo"
+        data="assets/img/mobile_logo.svg"
+        width="32"
+      ></object>
+      <p>WORLD</p>
 
-      <button type="submit">
-        Enviar
-      </button>
-    </form>
+      <div class="CountrySelect">
+        <select name="country" id="countries"></select>
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    </header>
     <canvas id="canvas"></canvas>
-    <div id="app"></div>
+    <div class="Sketch" id="sketch">
+      <div class="Sketch__loader" id="sketch_loader">
+        <div class="Sketch__loader-container">
+          <span class="loader"></span>
+        </div>
+        <div class="Sketch__loader-image">
+          <object width="92" data="assets/img/loader-bg-image.svg"></object>
+        </div>
+      </div>
+    </div>
   </body>
   
 </html>
