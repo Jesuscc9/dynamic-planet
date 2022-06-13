@@ -1,22 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GeoQuiz</title>
+    <script
+      src="https://kit.fontawesome.com/742df9d28f.js"
+      crossorigin="anonymous"
+    ></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <form action="" id="country-form" style="padding: 2rem;">
-      <select name="country" id="countries" onclick="fetchData">
-      </select>
+    <header class="Header">
+      <object
+        class="Header__desktop-logo"
+        data="assets/img/logo.svg"
+        width="160"
+      ></object>
+      <object
+        class="Header__mobile-logo"
+        data="assets/img/mobile_logo.svg"
+        width="32"
+      ></object>
+      <p>WORLD</p>
 
-      <button type="submit">
-        Enviar
-      </button>
-    </form>
+      <div class="CountrySelect">
+        <select name="country" id="countries"></select>
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    </header>
     <canvas id="canvas"></canvas>
-    <div id="app" style="width: 100vw; height: 100vh"></div>
+    <div class="Sketch" id="sketch">
+      <div class="Sketch__loader" id="sketch_loader">
+        <div class="Sketch__loader-container">
+          <span class="loader"></span>
+        </div>
+        <div class="Sketch__loader-image">
+          <object width="92" data="assets/img/loader-bg-image.svg"></object>
+        </div>
+      </div>
+    </div>
   </body>
   <script type="module" src="/scripts/main.js"></script>
 </html>

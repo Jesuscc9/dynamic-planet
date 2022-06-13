@@ -1,28 +1,11 @@
 import TWEEN from '@tweenjs/tween.js'
-import * as dat from 'dat.gui'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import fragment from '../assets/shader/fragment.glsl?raw'
 import vertex from '../assets/shader/vertex.glsl?raw'
 
-
-
-import { convertCordsToCartesian } from './helpers'
+import { $, convertCordsToCartesian } from './helpers'
 import { visibilityForCoordinate } from './main'
-
-const loader = new GLTFLoader()
-
-
-const importModel = async () => {
-  return new Promise((resolve, reject) => {
-    loader.load('../assets/models/earth.gltf', function (gltf) {
-      resolve(gltf)
-    }, undefined, function ( error ) {
-      reject(error)
-    } )
-  })
-}
 
 export default class Sketch {
   constructor(options) {
@@ -32,10 +15,13 @@ export default class Sketch {
     this.width = this.container.offsetWidth
     this.height = this.container.offsetHeight
 
+    this.cameraMaxZoom = 1.8
+    this.cameraMinZoom = 2.5
+
     this.renderer = new THREE.WebGLRenderer()
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1))
     this.renderer.setSize(this.width, this.height)
-    this.renderer.setClearColor('rgb(0, 0, 0)', 1)
+    this.renderer.setClearColor('#1A1A2E', 1)
 
     this.container.appendChild(this.renderer.domElement)
 
@@ -46,33 +32,18 @@ export default class Sketch {
       1000
     )
 
-    this.camera.position.set(0, 0, 3)
+    this.camera.position.set(0, 0, this.cameraMinZoom)
 
     this.time = 0
 
     this.isPlaying = true
 
-    this.country = {
-      targetAngle: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      coords: [0, 0]
-    }
-
     this.addObjects()
     this.resize()
     this.setupResize()
-  }
 
-  settings() {
-    this.settings = {
-      progress: 0
-    }
-
-    this.gui = new dat.GUI()
-    this.gui.add(this.settings, 'progress', 0, 1, 0.01)
+    // This function will be called when add Objects is finished ⬇️
+    // this.render()
   }
 
   setupResize() {
@@ -93,11 +64,11 @@ export default class Sketch {
     this.controls.autoRotate = false
 
     // Rotate earth to focus that country
-    var d = (-lng * (Math.PI / 180)) % (2 * Math.PI)
-    var e = (Math.PI / 2) * -1
+    const d = (-lng * (Math.PI / 180)) % (2 * Math.PI)
+    const e = (Math.PI / 2) * -1
 
-    const initialCameraZoom = 3
-    const endCameraZoom = 2
+    const initialCameraZoom = this.cameraMinZoom
+    const endCameraZoom = this.cameraMaxZoom
 
     const cameraZoom = {
       value: initialCameraZoom
@@ -122,7 +93,7 @@ export default class Sketch {
         cameraZoom.value = this.camera.position.z
         if (this.camera.position.z !== initialCameraZoom) {
           new TWEEN.Tween(cameraZoom)
-            .to({ value: 3 }, 1000)
+            .to({ value: this.cameraMinZoom }, 1000)
             .onUpdate(() => {
               this.camera.position.z = cameraZoom.value
               this.controls.saveState()
@@ -131,7 +102,7 @@ export default class Sketch {
             .onComplete(() => {
               cameraZoom.value = this.camera.position.z
               new TWEEN.Tween(cameraZoom)
-                .to({ value: 2 }, 1000)
+                .to({ value: this.cameraMaxZoom }, 1000)
                 .onUpdate(() => {
                   this.camera.position.z = cameraZoom.value
                   this.controls.saveState()
@@ -169,23 +140,17 @@ export default class Sketch {
   }
 
   async addObjects() {
+    // const model = await importModel('../assets/models/nasa-earth.gltf')
+    // this.planet = model.scene
+    // this.scene.add(this.planet)
 
-    
-    
-    const model = await importModel()
-    this.planet = model.scene
-    this.scene.add(this.planet)
-    // this.planet.scale.set(0.35, 0.35, 0.35)
-    
-    var mroot = this.planet
-    var bbox = new THREE.Box3().setFromObject(mroot)
-    var size = bbox.getSize(new THREE.Vector3())
+    // const mroot = this.planet
+    // const bbox = new THREE.Box3().setFromObject(mroot)
+    // const size = bbox.getSize(new THREE.Vector3())
 
     //Rescale the object to normalized space
-    var maxAxis = Math.max(size.x, size.y, size.z)
-    mroot.scale.multiplyScalar(2 / maxAxis)
-
-
+    // const maxAxis = Math.max(size.x, size.y, size.z)
+    // mroot.scale.multiplyScalar(2 / maxAxis)
 
     this.material = new THREE.ShaderMaterial({
       extensions: {
@@ -200,30 +165,26 @@ export default class Sketch {
       fragmentShader: fragment
     })
 
+    this.material = new THREE.MeshPhongMaterial({ color: '#1A1A2E' })
 
-    this.material = new THREE.MeshPhongMaterial({color: '#4849c5'})
-
-    var light = new THREE.DirectionalLight(0xffffff, 10)
-    light.position.set(-5, 3, 2)
+    this.light = new THREE.DirectionalLight(0xffffff, 4)
+    this.light.position.set(-5, 3, 2)
 
     this.lightHolder = new THREE.Group()
-    this.lightHolder.add(light)
+    this.lightHolder.add(this.light)
     this.scene.add(this.lightHolder)
 
+    this.scene.add(new THREE.AmbientLight('#fff', 3))
 
-    this.scene.add(new THREE.AmbientLight('#fff', 10))
-
-
-    
-    this.scene.background = new THREE.Color(0x040d21)
+    this.scene.background = new THREE.Color('#1A1A2E')
 
     const radius = 1
 
     const pinSize = 0.003
 
     this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
-    // this.planet = new THREE.Mesh(this.geometry, this.material)
-    // this.scene.add(this.planet)
+    this.planet = new THREE.Mesh(this.geometry, this.material)
+    this.scene.add(this.planet)
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enableDamping = true
@@ -247,7 +208,7 @@ export default class Sketch {
       for (let x = 0; x < dotsForLat; x++) {
         const long = -180 + (x * 360) / dotsForLat
 
-        if(!visibilityForCoordinate(lat, long)) continue
+        if (!(await visibilityForCoordinate(lat, long))) continue
 
         const point = new THREE.Mesh(
           new THREE.SphereBufferGeometry(pinSize, 20, 20),
@@ -264,6 +225,7 @@ export default class Sketch {
 
     this.planet.attach(this.pin)
 
+    $('#sketch_loader').style.display = 'none'
     this.render()
   }
 
@@ -281,8 +243,7 @@ export default class Sketch {
   render() {
     if (!this.isPlaying) return
     this.time += 0.5
-    this.planet.rotation.y += 0.001
-
+    this.planet.rotation.y += 0.0005
     this.controls.update()
     TWEEN.update()
     requestAnimationFrame(this.render.bind(this))

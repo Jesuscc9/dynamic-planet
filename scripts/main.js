@@ -1,46 +1,47 @@
 import TomSelect from 'tom-select'
 import 'tom-select/dist/css/tom-select.bootstrap4.css'
+// import earthData from '../data/earth.json'
 import '../style.css'
 import Sketch from './Sketch'
+
 const countries = {}
 
-var sketch = null
+const width = 1000,
+  height = 500
 
-const select = new TomSelect(document.getElementById('countries'))
+let sketch = null
 
-const fetchData = () => {
-  const options = []
-
-  fetch('../data/countries.json')
-    .then((e) => e.json())
-    .then((data) => {
-      data.forEach((el) => {
-        options.push({
-          text: el.name.common,
-          value: el.cca3
-        })
-        countries[el.cca3] = el.capitalInfo.latlng
-      })
-
-      select.addOptions(options)
-    })
-}
-
-fetchData()
-
-const form = document.getElementById('country-form')
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault()
-
-  const data = new FormData(form)
-
-  for (const [name, value] of data) {
-    if (name === 'country') {
-      sketch.focusCountry(countries[value])
-    }
+const select = new TomSelect(document.getElementById('countries'), {
+  plugins: ['dropdown_input'],
+  placeholder: 'Select a country...',
+  onChange: (e) => {
+    sketch.focusCountry(countries[e])
   }
 })
+
+const init = async () => {
+  const options = []
+
+  const countriesData = (await import('../assets/data/countries.json')).default
+
+  countriesData.forEach((el) => {
+    options.push({
+      text: el.name.common,
+      value: el.cca3
+    })
+    countries[el.cca3] = el.capitalInfo.latlng
+  })
+
+  select.addOptions(options)
+
+  sketch = new Sketch({
+    dom: document.getElementById('sketch')
+  })
+}
+
+init()
+
+let earthData = null
 
 function latlngToGlobalXY(lat, lng, p0, p1) {
   const radius = 1
@@ -51,41 +52,7 @@ function latlngToGlobalXY(lat, lng, p0, p1) {
   return { x, y }
 }
 
-let width = 0,
-  height = 0,
-  data = []
-
-export const getImageData = () => {
-  const img = new Image()
-  img.src = '../assets/img/earth-map.jpg'
-  const canvas = document.getElementById('canvas')
-  const ctx = canvas.getContext('2d')
-
-  img.onload = function () {
-    canvas.setAttribute('width', img.width)
-    canvas.setAttribute('height', img.height)
-
-    ctx.drawImage(img, 0, 0)
-    img.style.display = 'none'
-    canvas.style.display = 'none'
-
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
-    width = imageData.width
-    height = imageData.height
-    data = imageData.data
-
-    sketch = new Sketch({
-      dom: document.getElementById('app')
-    })
-
-    console.log({ sketch })
-  }
-}
-
-getImageData()
-
-export const visibilityForCoordinate = (lat, lang) => {
+export const visibilityForCoordinate = async (lat, lang) => {
   const getColorIndicesForCoord = (x, y) => {
     const red = y * (width * 4) + x * 4
     return [red, red + 1, red + 2, red + 3]
@@ -122,12 +89,15 @@ export const visibilityForCoordinate = (lat, lang) => {
   const x = Math.round(p0.scrX + (p1.scrX - p0.scrX) * pos.perX)
   const y = Math.round(p0.scrY + (p1.scrY - p0.scrY) * pos.perY)
 
-  const [r, g, b, a] = getColorIndicesForCoord(x, y)
+  const [redIndex, greenIndex, blueIndex] = getColorIndicesForCoord(x, y)
 
-  const red = data[r]
-  const green = data[g]
-  const blue = data[b]
-  const alpha = data[a]
+  if (earthData === null) {
+    earthData = (await import('../assets/data/earth.json')).default
+  }
+
+  const red = earthData[redIndex]
+  const green = earthData[greenIndex]
+  const blue = earthData[blueIndex]
 
   if (red === 0 || green === 0 || blue === 0) return true
 

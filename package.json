@@ -18,7 +18,8 @@
     "gsap": "3.10.4",
     "three": "0.141.0",
     "threejs-object-controls": "^1.2.8",
-    "tom-select": "2.0.3"
+    "tom-select": "2.0.3",
+    "vite-plugin-fonts": "^0.4.0"
   },
   "eslintConfig": {
     "extends": [
