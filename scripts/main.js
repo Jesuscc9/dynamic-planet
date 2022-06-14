@@ -1,7 +1,5 @@
 import TomSelect from 'tom-select'
 import 'tom-select/dist/css/tom-select.bootstrap4.css'
-// import earthData from '../data/earth.json'
-import '../style.css'
 import Sketch from './Sketch'
 
 const countries = {}

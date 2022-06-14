@@ -1,6 +1,7 @@
+import { defineConfig } from 'vite'
 import ViteFonts from 'vite-plugin-fonts'
 
-export default {
+export default defineConfig({
   plugins: [
     ViteFonts({
       // Custom fonts.
@@ -21,7 +22,7 @@ export default {
            * Regex(es) of font files to import. The names of the files will
            * predicate the `font-style` and `font-weight` values of the `@font-rule`'s.
            */
-          src: './assets/fonts/*.otf',
+          src: './fonts/*.otf',
         }],
 
         /**
@@ -48,4 +49,9 @@ export default {
       },
     }),
   ],
-}
+  assetsInclude: ['**/*.gltf', '**/*.svg'],
+  build: {
+    outDir: 'dist'
+  },
+  publicDir: 'assets'
+})

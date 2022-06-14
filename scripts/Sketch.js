@@ -3,9 +3,9 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import fragment from '../assets/shader/fragment.glsl?raw'
 import vertex from '../assets/shader/vertex.glsl?raw'
-
 import { $, convertCordsToCartesian } from './helpers'
 import { visibilityForCoordinate } from './main'
+
 
 export default class Sketch {
   constructor(options) {
@@ -38,7 +38,7 @@ export default class Sketch {
 
     this.isPlaying = true
 
-    // this.addObjects()
+    this.addObjects()
     this.resize()
     this.setupResize()
 
