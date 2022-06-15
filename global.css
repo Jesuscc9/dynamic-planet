@@ -60,6 +60,31 @@ body {
   margin: 0px;
 }
 
+.HomeBackground {
+  background: radial-gradient(
+      66.5% 221.21% at 136.03% -61.44%,
+      rgba(161, 155, 217, 0.4) 0%,
+      rgba(161, 155, 217, 0) 92.09%
+    ),
+    radial-gradient(
+      93.54% 126.91% at 29.15% -56.29%,
+      rgba(233, 69, 96, 0.7) 0%,
+      rgba(233, 69, 96, 0) 92.09%
+    ),
+    radial-gradient(
+      86.19% 101.84% at -17.13% -24.8%,
+      rgba(0, 162, 254, 0.7) 0%,
+      rgba(0, 162, 254, 0) 92.09%
+    ),
+    var(--purple-900);
+
+  height: 100vh;
+  width: 100vw;
+
+  position: fixed;
+  z-index: -1;
+}
+
 canvas {
   display: none;
 }
