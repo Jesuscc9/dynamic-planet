@@ -7,11 +7,11 @@ const earthStates = {
   'nasa-texture': {
     focusLight: 2,
     ambientLight: 3,
-    earth3dModel: '../assets/models/nasa-earth.gltf'
+    earth3dModel: '../models/nasa-earth.gltf'
   }, 'draw-texture': {
     focusLight: 0.5,
     ambientLight: 1,
-    earth3dModel: '../assets/models/earth.gltf'
+    earth3dModel: '../models/earth.gltf'
   }, 'no-texture': {
     focusLight: 3,
     ambientLight: 1.8
