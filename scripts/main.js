@@ -98,7 +98,7 @@ const init = async () => {
 }
 
 function renderCountryData(country) {
-  const imgEL = $('#country-data iframe')
+  const iframeEl = $('#country-data iframe')
 
   const options = {
     method: 'GET',
@@ -116,8 +116,13 @@ function renderCountryData(country) {
     .then(response => response.json())
     .then(data => {
       console.log({ data })
-      console.log({ imgEl: imgEL })
-      imgEL.setAttribute('src', data.result.webcams[0].player.day.embed)
+      console.log({ iframeEl })
+      iframeEl.setAttribute('src', data.result.webcams[0].player.day.embed + '?autoplay=1')
+      // iframeEl.addEventListener('load', (e) => {
+      //   const playerCam = iframeEl.contentWindow.document
+      //   console.log({ playerCam })
+      // })
+
     })
     .catch(err => console.error(err))
 
