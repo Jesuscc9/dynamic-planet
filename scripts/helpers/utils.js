@@ -70,7 +70,6 @@ const getImageData = () => {
 
 }
 
-
 export const visibilityForCoordinate = async (lat, lang) => {
   const getColorIndicesForCoord = (x, y) => {
     const red = y * (width * 4) + x * 4

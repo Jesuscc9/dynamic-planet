@@ -140,6 +140,7 @@ export default class Sketch {
 
     const { x, y, z } = convertCordsToCartesian([lat, lng])
 
+
     // Move pin smoothly
     new TWEEN.Tween(this.pin.position)
       .to(
@@ -173,11 +174,11 @@ export default class Sketch {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enableDamping = true
-    this.controls.enablePan = false
-    this.controls.enableZoom = false
+    this.controls.enablePan = true
+    this.controls.enableZoom = true
 
     this.pin = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(pinSize, 20, 20),
+      new THREE.SphereBufferGeometry(0.006, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0xff0000 })
     )
 
@@ -191,14 +192,13 @@ export default class Sketch {
 
   async updateEarth(type) {
 
+    const { focusLight, ambientLight, earth3dModel } = earthStates[type]
     this.controls.reset()
     $('#sketch_loader').style.display = 'block'
 
     if (typeof this.planet !== 'undefined') {
       this.scene.remove(this.planet)
     }
-
-    const { focusLight, ambientLight, earth3dModel } = earthStates[type]
 
     this.light.intensity = focusLight
     this.ambientLight.intensity = ambientLight
@@ -211,7 +211,6 @@ export default class Sketch {
       this.geometry = new THREE.SphereBufferGeometry(radius, 100, 100)
       this.planet = new THREE.Mesh(this.geometry, this.material)
       this.scene.add(this.planet)
-      this.planet.add(this.pin)
 
       const rows = 180 * 1
       const GLOBE_RADIUS = 16
@@ -242,16 +241,20 @@ export default class Sketch {
         }
       }
 
+      this.planet.add(this.pin)
+
       $('#sketch_loader').style.display = 'none'
 
       return
     }
 
-    this.scene.remove(this.planet)
-
     const model = await importModel(earth3dModel)
+
     this.planet = model.scene
+
     this.scene.add(this.planet)
+
+    this.planet.add(this.pin)
 
     const bbox = new THREE.Box3().setFromObject(this.planet)
     const size = bbox.getSize(new THREE.Vector3())

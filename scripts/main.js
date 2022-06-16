@@ -37,7 +37,6 @@ const init = async () => {
           loadedData = true
         })
     },
-    // custom rendering functions for options and items
     render: {
       option: function (item, escape) {
         return `
@@ -53,7 +52,11 @@ const init = async () => {
 
       item: function (item, escape) {
         selectedCountry = item
+
+        console.log({ selectedCountry })
+
         sketch.focusCountry(selectedCountry.capitalInfo.latlng)
+        renderCountryData(selectedCountry)
         return `
         <div class="option-container">
           <div class="icon me-3">
@@ -92,6 +95,33 @@ const init = async () => {
   sketch = new Sketch({
     dom: document.getElementById('sketch')
   })
+}
+
+function renderCountryData(country) {
+  const imgEL = $('#country-data iframe')
+
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': '40a70ef685msh86e793accdc4689p19ff7bjsn8d72ef3d1f3e',
+      'X-RapidAPI-Host': 'webcamstravel.p.rapidapi.com'
+    }
+  }
+
+  const [lat, lang] = country.capitalInfo.latlng
+
+  const radius = 10
+
+  fetch(`https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}?lang=en&show=webcams%3Aimage%2Clocation%2Cplayer`, options)
+    .then(response => response.json())
+    .then(data => {
+      console.log({ data })
+      console.log({ imgEl: imgEL })
+      imgEL.setAttribute('src', data.result.webcams[0].player.day.embed)
+    })
+    .catch(err => console.error(err))
+
+
 }
 
 init()

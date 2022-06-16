@@ -12,6 +12,22 @@
   cursor: pointer;
 }
 
+.CountryData {
+  width: 300px;
+  height: 160px;
+
+  position: absolute;
+  right: -100px;
+  top: 0px;
+}
+
+.CountryData img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
 .Sketch__loader {
   position: absolute;
   width: 100%;
