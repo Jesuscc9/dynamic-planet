@@ -1,12 +1,11 @@
 /* Sketch */
 
 .Sketch {
-  width: 800px;
-  height: 800px;
+  width: 100%;
+  height: 100vh;
   margin: auto;
-  margin-top: 2rem;
 
-  max-width: 100%;
+  max-width: 100vw;
   max-height: 100%;
   position: relative;
   cursor: pointer;
@@ -14,18 +13,69 @@
 
 .CountryData {
   width: 300px;
-  height: 160px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.4s;
 
   position: absolute;
-  right: -100px;
-  top: 0px;
+  right: 2rem;
+  top: 2rem;
+  z-index: 10;
+  cursor: default;
+  backdrop-filter: blur(0.4rem);
+  padding: 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.CountryData img {
+.CountryData__img {
   width: 100%;
-  height: 100%;
+  height: 160px;
+  transition: background 0.3s ease-in-out;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 0.2rem;
+}
 
-  object-fit: contain;
+.CountryData__buttons button {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--green-500);
+  color: var(--white);
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 3.75rem;
+}
+
+.CountryData__buttons button:hover {
+  background-color: var(--green-600);
+}
+
+.CountryData__buttons button:disabled {
+  background-color: var(--green-500);
+  opacity: 0.7;
+  cursor: default;
+}
+
+.CountryData__buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.EarthSelect {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 10;
+}
+
+.CountryData p {
+  color: var(--white);
+  font-weight: 500;
 }
 
 .Sketch__loader {
@@ -94,11 +144,20 @@
   display: flex !important;
   align-items: center;
   column-gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.option-container p {
+  margin: 0.2rem;
 }
 
 /* Custom select styles */
 .ts-wrapper {
-  width: 240px;
+  width: 300px;
+}
+
+.ts-control input {
+  min-width: unset !important;
 }
 
 /* Loader Styles */

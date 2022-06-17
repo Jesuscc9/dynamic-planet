@@ -34,12 +34,19 @@
       </div>
     </header>
     <canvas id="canvas"></canvas>
-    <div>
-      <select name="earth" id="earth"></select>
-    </div>
+
     <div class="Sketch" id="sketch">
+      <div class="EarthSelect">
+        <select name="earth" id="earth"></select>
+      </div>
+
       <div id="country-data" class="CountryData">
-        <iframe allow="autoplay;" donotallowfullscreen=""></iframe>
+        <p>Random place at</p>
+        <div class="CountryData__img"></div>
+        <div class="CountryData__buttons">
+          <button id="back">back</button>
+          <button id="next">next</button>
+        </div>
       </div>
 
       <div class="Sketch__loader" id="sketch_loader">

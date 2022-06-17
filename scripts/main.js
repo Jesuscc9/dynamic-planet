@@ -1,5 +1,5 @@
-import TomSelect from 'tom-select'
-import 'tom-select/dist/css/tom-select.bootstrap4.css'
+import 'tom-select/dist/css/tom-select.bootstrap5.css'
+import TomSelect from 'tom-select/dist/js/tom-select.complete.js'
 import { $ } from './helpers/utils'
 import Sketch from './Sketch'
 
@@ -71,8 +71,9 @@ const init = async () => {
   })
 
   new TomSelect($('#earth'), {
-    plugins: ['dropdown_input'],
+    // plugins: ['dropdown_input'],
     placeholder: 'earth modifier...',
+
     options: [
       {
         text: 'Nasa Texture',
@@ -98,7 +99,13 @@ const init = async () => {
 }
 
 function renderCountryData(country) {
-  const iframeEl = $('#country-data iframe')
+  const imgEl = $('.CountryData__img')
+
+  console.log(imgEl)
+
+  const titleEl = $('#country-data p')
+
+  console.log({ country })
 
   const options = {
     method: 'GET',
@@ -110,22 +117,50 @@ function renderCountryData(country) {
 
   const [lat, lang] = country.capitalInfo.latlng
 
-  const radius = 10
+  const radius = 160
 
-  fetch(`https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}?lang=en&show=webcams%3Aimage%2Clocation%2Cplayer`, options)
+  let data = null
+
+  let imageIndex = 0
+
+  let totalWebcams = 0
+
+  const updateData = () => {
+    titleEl.textContent = `Random place at ${country.capital[0] ?? ''}`
+    updateImage(0)
+  }
+
+  const updateImage = (val) => {
+    imageIndex = imageIndex + val
+    imgEl.style.backgroundImage = `url(${data.result.webcams[imageIndex].image.daylight.preview})`
+
+    $('#back').disabled = false
+    $('#next').disabled = false
+
+
+    if (imageIndex === 0) $('#back').disabled = true
+
+    if (imageIndex === totalWebcams - 1) $('#next').disabled = true
+  }
+
+  $('#back').addEventListener('click', function () {
+    updateImage(-1)
+  })
+
+  $('#next').addEventListener('click', function () {
+    updateImage(+1)
+  })
+
+  fetch(`https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}?lang=en&show=webcams%3Aimage%2Clocation%2Cplayercategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`, options)
     .then(response => response.json())
-    .then(data => {
-      console.log({ data })
-      console.log({ iframeEl })
-      iframeEl.setAttribute('src', data.result.webcams[0].player.day.embed + '?autoplay=1')
-      // iframeEl.addEventListener('load', (e) => {
-      //   const playerCam = iframeEl.contentWindow.document
-      //   console.log({ playerCam })
-      // })
-
+    .then(json => {
+      data = json
+      totalWebcams = data.result.webcams.length
+      updateData()
+      $('#country-data').style.opacity = 1
+      $('#country-data').style.pointerEvents = 'all'
     })
     .catch(err => console.error(err))
-
 
 }
 

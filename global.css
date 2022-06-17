@@ -51,8 +51,12 @@
 
 :root {
   --purple-900: #1a1a2e;
+  --white: #fff;
   --gray-200: hsla(0, 0%, 100%, 0.2);
   --gray-400: hsla(0, 0%, 100%, 0.6);
+  --green-300: #8ace4f;
+  --green-500: #6cb928;
+  --green-600: #4e8d17;
 }
 
 body {
@@ -87,4 +91,11 @@ body {
 
 canvas {
   display: none;
+}
+
+button {
+  cursor: pointer;
+  outline: 0;
+  border: 0;
+  transition: background-color 0.2s, opactiy 0.2s;
 }
