@@ -57,6 +57,9 @@
   --green-300: #8ace4f;
   --green-500: #6cb928;
   --green-600: #4e8d17;
+  --yellow-500: #fecd19;
+  --red-600: #e94560;
+  --red-500: #e21538;
 }
 
 body {

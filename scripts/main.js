@@ -3,6 +3,8 @@ import TomSelect from 'tom-select/dist/js/tom-select.complete.js'
 import { $ } from './helpers/utils'
 import Sketch from './Sketch'
 
+const notFoundImage = 'https://thumbs.gfycat.com/AdolescentAdmiredAnnashummingbird-max-1mb.gif'
+
 let sketch = null
 
 let selectedCountry = null
@@ -10,14 +12,12 @@ let selectedCountry = null
 let loadedData = false
 
 const init = async () => {
-
   new TomSelect('#countries', {
     valueField: 'capitalName',
     labelField: 'capitalName',
     searchField: ['capitalName', 'country'],
 
     load: function (query, callback) {
-
       if (loadedData === true) {
         callback([])
         return
@@ -30,7 +30,8 @@ const init = async () => {
         .then((json) => {
           json = json.map((e) => ({
             ...e,
-            capitalName: e?.capital?.[0]?.toLowerCase() ?? e.name.common.toLowerCase(),
+            capitalName:
+              e?.capital?.[0]?.toLowerCase() ?? e.name.common.toLowerCase(),
             country: e.name.common.toLowerCase()
           }))
           callback(json)
@@ -72,7 +73,7 @@ const init = async () => {
 
   new TomSelect($('#earth'), {
     // plugins: ['dropdown_input'],
-    placeholder: 'earth modifier...',
+    placeholder: 'Earth Texture...',
 
     options: [
       {
@@ -125,8 +126,17 @@ function renderCountryData(country) {
 
   let totalWebcams = 0
 
+  // TODO: change innerHTML to prevent safety issues
   const updateData = () => {
-    titleEl.textContent = `Random place at ${country.capital[0] ?? ''}`
+    if (totalWebcams === 0) {
+      titleEl.innerHTML = `We have no access to <span class="error">${country.capital[0] ?? ''} </span> webcams :c`
+      imgEl.style.backgroundImage = `url(${notFoundImage})`
+      $('#back').disabled = true
+      $('#next').disabled = true
+      return
+    }
+
+    titleEl.innerHTML = `Public webcams at <span>${country.capital[0] ?? ''}</span>`
     updateImage(0)
   }
 
@@ -136,7 +146,6 @@ function renderCountryData(country) {
 
     $('#back').disabled = false
     $('#next').disabled = false
-
 
     if (imageIndex === 0) $('#back').disabled = true
 
@@ -151,17 +160,21 @@ function renderCountryData(country) {
     updateImage(+1)
   })
 
-  fetch(`https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}?lang=en&show=webcams%3Aimage%2Clocation%2Cplayercategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`, options)
-    .then(response => response.json())
-    .then(json => {
+  fetch(
+    `https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}/orderby=popularity,desc/limit=20?show=webcams%3Aimage%2Clocation%2Cplayer%2Ccategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`,
+    options
+  )
+    .then((response) => response.json())
+    .then((json) => {
       data = json
-      totalWebcams = data.result.webcams.length
-      updateData()
+      console.log({ data })
+      totalWebcams = data.result.total
       $('#country-data').style.opacity = 1
       $('#country-data').style.pointerEvents = 'all'
-    })
-    .catch(err => console.error(err))
 
+      updateData()
+    })
+    .catch((err) => console.error(err))
 }
 
 init()
