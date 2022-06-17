@@ -161,7 +161,7 @@ function renderCountryData(country) {
   })
 
   fetch(
-    `https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}/orderby=popularity,desc/limit=20?show=webcams%3Aimage%2Clocation%2Cplayer%2Ccategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`,
+    `https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}/orderby=popularity,desc/limit=30?show=webcams%3Aimage%2Clocation%2Cplayer%2Ccategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`,
     options
   )
     .then((response) => response.json())
