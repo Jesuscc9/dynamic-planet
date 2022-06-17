@@ -44,6 +44,15 @@
   }
 }
 
+.CountryData__counter {
+  display: flex;
+  justify-content: flex-end;
+
+  font-weight: bold;
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
 .CountryData span {
   color: var(--yellow-500);
 }

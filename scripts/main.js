@@ -54,8 +54,6 @@ const init = async () => {
       item: function (item, escape) {
         selectedCountry = item
 
-        console.log({ selectedCountry })
-
         sketch.focusCountry(selectedCountry.capitalInfo.latlng)
         renderCountryData(selectedCountry)
         return `
@@ -102,11 +100,7 @@ const init = async () => {
 function renderCountryData(country) {
   const imgEl = $('.CountryData__img')
 
-  console.log(imgEl)
-
   const titleEl = $('#country-data p')
-
-  console.log({ country })
 
   const options = {
     method: 'GET',
@@ -142,6 +136,7 @@ function renderCountryData(country) {
 
   const updateImage = (val) => {
     imageIndex = imageIndex + val
+    $('#img-counter').innerHTML = `${imageIndex + 1} / ${totalWebcams}`
     imgEl.style.backgroundImage = `url(${data.result.webcams[imageIndex].image.daylight.preview})`
 
     $('#back').disabled = false
@@ -161,14 +156,13 @@ function renderCountryData(country) {
   })
 
   fetch(
-    `https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}/orderby=popularity,desc/limit=30?show=webcams%3Aimage%2Clocation%2Cplayer%2Ccategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`,
+    `https://webcamstravel.p.rapidapi.com/webcams/list/nearby=${lat},${lang},${radius}/orderby=popularity,desc/limit=50?show=webcams%3Aimage%2Clocation%2Cplayer%2Ccategory%2Cimage%2Clocation%2Cmap%2Cplayer%2Cproperty%2Cstatistics%2Curl`,
     options
   )
     .then((response) => response.json())
     .then((json) => {
       data = json
-      console.log({ data })
-      totalWebcams = data.result.total
+      totalWebcams = data.result.webcams.length
       $('#country-data').style.opacity = 1
       $('#country-data').style.pointerEvents = 'all'
 
