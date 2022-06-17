@@ -23,9 +23,9 @@
 
   position: absolute;
   left: 50%;
-  bottom: 0px;
+  top: 100%;
 
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -150%);
 
   z-index: 10;
   cursor: default;
@@ -37,7 +37,8 @@
 
 @media screen and (min-width: 1024px) {
   .CountryData {
-    right: 2rem;
+    left: calc(100% - 2rem);
+    transform: translateX(-100%) !important;
     top: 2rem;
     transform: none;
   }
