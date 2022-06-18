@@ -11,4 +11,4 @@ and go to http://localhost:3000
 ### Example
 to visit actual deployed version visit
 
-https://dynamic-planet.herokuapp.com/
+https://dynamic-planet.vercel.app/
